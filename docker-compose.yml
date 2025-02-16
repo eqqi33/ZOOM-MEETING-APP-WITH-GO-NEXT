@@ -1,0 +1,80 @@
+version: "3.9"
+name: zoom-meeting-app
+
+services:
+  api:
+    container_name: zoom-meeting-app-api
+    build:
+      dockerfile: Dockerfile
+      context: ./zoom-meeting-app-api
+      target: development
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASSWORD=secret
+      - DB_NAME=zoom_db
+      - DB_PORT=5432
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+
+  frontend:
+    container_name: zoom-meeting-app-frontend
+    build:
+      dockerfile: Dockerfile
+      context: ./zoom-meeting-app-frontend
+    volumes:
+      - ./zoom-meeting-app-frontend:/project/zoom-meeting-app-frontend
+      - /project/zoom-meeting-app-frontend/node_modules/
+    ports:
+      - 8000:8000
+    links:
+      - server
+    networks:
+      - main-network
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  db:
+    image: postgres:15-alpine
+    container_name: zoom-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: zoom_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-volume:/data/pgadmin
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+    networks:
+      - app_network
+    restart: unless-stopped
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin-volume:

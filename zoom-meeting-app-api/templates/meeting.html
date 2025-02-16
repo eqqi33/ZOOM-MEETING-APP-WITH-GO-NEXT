@@ -1,0 +1,7 @@
+{{ define "content" }}
+<h2>Meeting Details</h2>
+<p><strong>Topic:</strong> {{ .Meeting.Topic }}</p>
+<p><strong>Start Time:</strong> {{ .Meeting.StartTime }}</p>
+<p><a href="{{ .Meeting.JoinURL }}" target="_blank">Join Meeting</a></p>
+<a href="/">Back to Meetings</a>
+{{ end }}

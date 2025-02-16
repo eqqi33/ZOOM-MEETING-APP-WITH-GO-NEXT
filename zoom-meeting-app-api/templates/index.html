@@ -1,0 +1,10 @@
+{{ define "content" }}
+<h2>List of Zoom Meetings</h2>
+<ul>
+    {{ range .Meetings }}
+    <li>
+        <a href="/meetings/{{ .ID }}/view">{{ .Topic }}</a> - {{ .StartTime }}
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
