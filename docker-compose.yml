@@ -1,4 +1,3 @@
-version: "3.9"
 name: zoom-meeting-app
 
 services:
@@ -7,7 +6,6 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./zoom-meeting-app-api
-      target: development
     restart: always
     depends_on:
       - db
@@ -18,7 +16,7 @@ services:
       - DB_NAME=zoom_db
       - DB_PORT=5432
     ports:
-      - "8000:8000"
+      - "8000:8080"
     networks:
       - app_network
 
@@ -31,11 +29,11 @@ services:
       - ./zoom-meeting-app-frontend:/project/zoom-meeting-app-frontend
       - /project/zoom-meeting-app-frontend/node_modules/
     ports:
-      - 8000:8000
+      - 3000:8000
     links:
-      - server
+      - api
     networks:
-      - main-network
+      - app_network
     restart: unless-stopped
     depends_on:
       - api

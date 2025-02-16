@@ -13,7 +13,7 @@ import (
 func main() {
 	database.ConnectDatabase()
 	database.MigrateDatabase()
-
+	database.SeedDatabase()
 	r := gin.Default()
 
 	// Set up session middleware (using a cookie store)
