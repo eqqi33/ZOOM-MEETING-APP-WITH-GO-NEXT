@@ -16,7 +16,7 @@ services:
       - DB_NAME=zoom_db
       - DB_PORT=5432
     ports:
-      - "8000:8080"
+      - "8000:8000"
     networks:
       - app_network
 
@@ -29,7 +29,7 @@ services:
       - ./zoom-meeting-app-frontend:/project/zoom-meeting-app-frontend
       - /project/zoom-meeting-app-frontend/node_modules/
     ports:
-      - 3000:8000
+      - 3000:3000
     links:
       - api
     networks:

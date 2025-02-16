@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Temporal } from "@js-temporal/polyfill";
-import { useCreateMeetingsMutation, useDeleteMeetingMutation, useGetMeetingQuery, useGetMeetingsQuery, useUpdateMeetingMutation } from "@/redux/services/meeting";
+import { useCreateMeetingsMutation, useDeleteMeetingMutation, useGetMeetingsQuery, useUpdateMeetingMutation } from "@/redux/services/meeting";
 import { MeetingResponseData } from "@/interface/commonInterface";
 import { Modal } from "./ui/modal";
 import * as yup from 'yup'
@@ -14,6 +14,7 @@ import "react-time-picker/dist/TimePicker.css";
 import "react-clock/dist/Clock.css";
 import MeetingDataContainer from "./MeetingDataContainer";
 import { useAuth } from "@/hooks/useAuth";
+import DarkModeToggle from "./ui/DarkMode";
 
 const schema = yup.object().shape({
     id_meeting: yup.string(),
@@ -47,10 +48,9 @@ function Calendar() {
     const [statusAlert, setStatusAlert] = useState<'danger' | 'error' | 'success'>('error')
     const [showSidebar, setShowSidebar] = useState<boolean>(false)
     const [createMeeting, { isLoading: isLoadingCreate }] = useCreateMeetingsMutation()
-    const [updateMeeting, { isLoading: isLoadingUpdate }] = useUpdateMeetingMutation()
+    const [updateMeeting] = useUpdateMeetingMutation()
     const [deleteMeeting] = useDeleteMeetingMutation()
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
-    const [selectedMeeting, setSelectedMeeting] = useState<{ id: string; topic: string } | null>(null);
     const [month, setMonth] = useState(Temporal.Now.plainDateISO().month);
     const [year, setYear] = useState(Temporal.Now.plainDateISO().year);
     const [allMeetings, setAllMeetings] = useState<MeetingResponseData[]>([]);
@@ -81,7 +81,7 @@ function Calendar() {
     const onSubmit = (data: MeetingFormData) => {
         if (!isLoadingCreate && mode === 'add') {
             const localTime = Temporal.PlainDateTime.from(data.start_time.replace(" ", "T"));
-            let submit: Partial<MeetingFormData> = { ...data, start_time: localTime.toString() + "Z" };
+            const submit: Partial<MeetingFormData> = { ...data, start_time: localTime.toString() + "Z" };
             delete submit.id_meeting
             createMeeting(submit).unwrap().then(() => {
                 setIsOpen(false);
@@ -105,7 +105,7 @@ function Calendar() {
         }
         else if (mode === 'edit') {
             const localTime = Temporal.PlainDateTime.from(data.start_time.replace(" ", "T"));
-            let submit: Partial<MeetingFormData> = { ...data, start_time: localTime.toString() + "Z" };
+            const submit: Partial<MeetingFormData> = { ...data, start_time: localTime.toString() + "Z" };
             updateMeeting({ id: idRoom, data: { topic: submit.topic, start_time: submit.start_time } }).unwrap().then((fulfilled) => {
                 setIsOpen(false);
                 setStatusAlert('success');
@@ -149,7 +149,6 @@ function Calendar() {
     // Open modal for adding a new meeting
     const handleDayClick = (date: string) => {
         setSelectedDate(date);
-        setSelectedMeeting(null);
         setMode('add');
         setIsOpen(true);
     };
@@ -158,7 +157,6 @@ function Calendar() {
     const handleMeetingClick = (meeting: { id: string; topic: string, start_time: string, selected_date: string }) => {
         setSelectedDate(meeting.selected_date);
         setIdRoom(meeting.id)
-        setSelectedMeeting(meeting);
         setMode('view');
         setIsOpen(true);
     };
@@ -221,7 +219,7 @@ function Calendar() {
             dayOfWeekMonthStartedOn + monthLength > fiveWeeks ? sixWeeks : fiveWeeks;
 
         // Create blank array
-        let calendar = new Array(length).fill({}).map((_, index) => {
+        const calendar = new Array(length).fill({}).map((_, index) => {
             const date = startOfMonth.add({ days: index - dayOfWeekMonthStartedOn });
             return {
                 isInMonth: !(index < dayOfWeekMonthStartedOn || index - dayOfWeekMonthStartedOn >= monthLength),
@@ -230,7 +228,6 @@ function Calendar() {
             };
         });
 
-        // Process meetings data
         // Process meetings data
         if (getMeetings?.data) {
             setAllMeetings(getMeetings.data);
@@ -314,7 +311,7 @@ function Calendar() {
             {/* Main Calendar */}
             <div className="flex-grow flex flex-col max-h-screen p-4">
                 <div className="flex justify-between mt-2 mb-8">
-                    <button className="btn btn-gray w-[120px]" onClick={seeAllMeeting}>
+                    <button className="btn dark:text-white w-[120px]" onClick={seeAllMeeting}>
                         {showSidebar ? "Close All Meeting" : "See All Meeting"}
                     </button>
                     <button className="btn btn-blue w-[120px]" onClick={previous}>
@@ -329,7 +326,8 @@ function Calendar() {
                     <button className="btn btn-blue w-[120px]" onClick={next}>
                         Next &gt;
                     </button>
-                    <button className="btn btn-red w-[120px]" onClick={() => handleLogout()}>
+                    <DarkModeToggle />
+                    <button className="btn btn-red w-[120px] text-red-500" onClick={() => handleLogout()}>
                         Logout
                     </button>
                 </div>

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/useAuth'
-import { useRouter } from 'next/navigation'
 
 // ** Third Party Imports
 import * as yup from 'yup'
@@ -30,7 +29,6 @@ interface FormData {
 export const Form = () => {
     // ** Hooks
     const auth = useAuth()
-    const router = useRouter()
     const {
         control,
         setError,
@@ -44,7 +42,7 @@ export const Form = () => {
 
     const onSubmit = (data: FormData) => {
         const { email, password } = data
-        auth.login({ email, password }, (callback) => {
+        auth.login({ email, password }, () => {
             setError('email', {
                 type: 'manual',
                 message: 'Email or Password is invalid'
@@ -55,15 +53,15 @@ export const Form = () => {
     return (
         <form noValidate autoComplete='off' className="space-y-12 w-full sm:w-[400px]" onSubmit={handleSubmit(onSubmit)} >
             <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="dark:text-white">Email</Label>
                 <Controller
                     name='email'
                     control={control}
-                    rules={{ required: true }}
+                    rules={{ required: "Email is required" }}
                     render={({ field: { value, onChange, onBlur } }) => (
                         <Input
                             type="email"
-                            className="w-full"
+                            className="w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required
                             autoFocus
                             value={value}
@@ -74,17 +72,17 @@ export const Form = () => {
                     )}
                 />
                 {errors.email && <Alert>{errors.email.message}</Alert>}
-                <Label htmlFor="email">Password</Label>
+
+                <Label htmlFor="password" className="dark:text-white  gap-1.5">Password</Label>
                 <Controller
                     name='password'
                     control={control}
-                    rules={{ required: true }}
+                    rules={{ required: "Password is required" }}
                     render={({ field: { value, onChange, onBlur } }) => (
                         <Input
                             type="password"
-                            className="w-full"
+                            className="w-full dark:bg-gray-700 dark:text-white dark:border-gray-600"
                             required
-                            autoFocus
                             value={value}
                             onBlur={onBlur}
                             onChange={onChange}
@@ -94,7 +92,7 @@ export const Form = () => {
                 {errors.password && <Alert>{errors.password.message}</Alert>}
             </div>
             <div className="w-full">
-                <Button className="w-full" size="lg">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600" size="lg">
                     Login
                 </Button>
             </div>

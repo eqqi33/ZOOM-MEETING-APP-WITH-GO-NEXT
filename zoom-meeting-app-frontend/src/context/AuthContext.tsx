@@ -75,7 +75,7 @@ const AuthProvider = ({ children }: Props) => {
 
                     // router.replace(redirectURL as string);
 
-                    window.location.href = "http://localhost:8000/auth/zoom?accessToken="+response.data.data.accessToken;
+                    window.location.href = "http://localhost:8000/auth/zoom?accessToken=" + response.data.data.accessToken;
                 }
             })
             .catch((err: any) => {
@@ -86,12 +86,12 @@ const AuthProvider = ({ children }: Props) => {
     }
 
     const handleLogout = async (): Promise<void> => {
-        await AuthLogout().then((response: AxiosResponse<AuthLogoutResponse>) => {
-            setUser(null);
-            window.localStorage.removeItem(apiConfig.auth.userKeyName);
-            window.localStorage.removeItem(apiConfig.auth.storageTokenKeyName);
-            router.push('/login');
-        });
+        setUser(null);
+        window.localStorage.removeItem(apiConfig.auth.userKeyName);
+        window.localStorage.removeItem(apiConfig.auth.storageTokenKeyName);
+        setTimeout(() => {
+            router.replace("/login");
+        }, 0);
     }
 
     const values = {

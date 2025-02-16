@@ -1,7 +1,7 @@
 # Zoom Meeting App Event with golang gin and next js
 
 ## Deskripsi
-Dokumentasi untuk menjalankan project ini dengan Docker.
+Ini adalah mini project yang dibuat untuk mengintegrasikan zoom api dengan event yang dibuat pada akun zoom dengan tampilan yang lebih interaktif dengan bentuk antarmuka kalendar menggunakan next js, tailwind, dan golang sebagai backendnya, dan juga menggunakan JWT unutuk autentikasinya. Mini project ini bisa berjalan juga langsung Docker.
 
 ## Persyaratan
 Sebelum memulai, pastikan kamu memiliki Docker dan Docker Compose yang terinstal di mesinmu.
