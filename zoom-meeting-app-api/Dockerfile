@@ -26,7 +26,7 @@ COPY . .
 RUN go build -o zoom-meeting-app-api .
 
 # Ekspos port aplikasi (sesuai dengan yang digunakan Gin)
-EXPOSE 8080
+EXPOSE 8000
 
 # Jalankan aplikasi
 CMD ["/app/zoom-meeting-app-api"]

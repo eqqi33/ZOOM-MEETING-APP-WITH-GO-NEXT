@@ -350,13 +350,18 @@ func CreateZoomMeeting(c *gin.Context, topic string, startTime string) (map[stri
 		return nil, fmt.Errorf("failed to get Zoom access token: %v", err)
 	}
 
+	startTimeUTC, _ := time.Parse(time.RFC3339, startTime)
+
+	// Subtract 7 hours to match Jakarta time manually
+	startTimeFinal := startTimeUTC.Add(-7 * time.Hour).Format(time.RFC3339)
+
 	// Request payload
 	data := map[string]interface{}{
 		"topic":      topic,
 		"type":       2,
-		"start_time": startTime,
+		"start_time": startTimeFinal, // Send Jakarta time
 		"duration":   30,
-		"timezone":   "Asia/Jakarta",
+		"timezone":   "Asia/Jakarta", // Ensure Zoom treats it as Jakarta time
 	}
 
 	// Convert to JSON
@@ -409,11 +414,18 @@ func UpdateZoomMeeting(c *gin.Context, meetingID string, topic string, startTime
 		return nil, fmt.Errorf("failed to get Zoom access token: %v", err)
 	}
 
+	startTimeUTC, _ := time.Parse(time.RFC3339, startTime)
+
+	// Subtract 7 hours to match Jakarta time manually
+	startTimeFinal := startTimeUTC.Add(-7 * time.Hour).Format(time.RFC3339)
+
+	// Request payload
 	data := map[string]interface{}{
 		"topic":      topic,
-		"start_time": startTime,
+		"type":       2,
+		"start_time": startTimeFinal, // Send Jakarta time
 		"duration":   30,
-		"timezone":   "Asia/Jakarta",
+		"timezone":   "Asia/Jakarta", // Ensure Zoom treats it as Jakarta time
 	}
 
 	jsonData, _ := json.Marshal(data)

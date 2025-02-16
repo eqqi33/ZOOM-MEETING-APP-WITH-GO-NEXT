@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"time"
 	"zoom-meeting-app/database"
 	"zoom-meeting-app/models"
 	"zoom-meeting-app/utils"
@@ -55,15 +56,29 @@ func GetMeetings(c *gin.Context) {
 	for _, zoomMeeting := range zoomMeetings {
 		zoomID := fmt.Sprintf("%.0f", zoomMeeting["id"].(float64)) // Convert float64 to string
 
+		// Parse the start_time string to time.Time
+		zoomStartTime, err := time.Parse(time.RFC3339, zoomMeeting["start_time"].(string)) // Assuming start_time is in RFC3339 format
+		if err != nil {
+			// Handle error if time parsing fails
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid time format"})
+			return
+		}
+
+		// Add 7 hours to the parsed time
+		adjustedStartTime := zoomStartTime.Add(7 * time.Hour)
+
+		// Format the adjusted time back to string
+		adjustedStartTimeStr := adjustedStartTime.Format(time.RFC3339)
+
 		if dbMeeting, exists := dbMeetingsMap[zoomID]; exists {
 			// If exists, check for updates
 			if dbMeeting.Topic != zoomMeeting["topic"].(string) ||
-				dbMeeting.StartTime != zoomMeeting["start_time"].(string) ||
+				dbMeeting.StartTime != adjustedStartTimeStr ||
 				dbMeeting.JoinURL != zoomMeeting["join_url"].(string) {
 
 				// Update existing record
 				dbMeeting.Topic = zoomMeeting["topic"].(string)
-				dbMeeting.StartTime = zoomMeeting["start_time"].(string)
+				dbMeeting.StartTime = adjustedStartTimeStr
 				dbMeeting.JoinURL = zoomMeeting["join_url"].(string)
 				database.DB.Save(&dbMeeting)
 			}
@@ -72,7 +87,7 @@ func GetMeetings(c *gin.Context) {
 			newMeeting := models.Meeting{
 				ZoomID:    zoomID,
 				Topic:     zoomMeeting["topic"].(string),
-				StartTime: zoomMeeting["start_time"].(string),
+				StartTime: adjustedStartTimeStr,
 				JoinURL:   zoomMeeting["join_url"].(string),
 				UserID:    currentUser.ID,
 			}
@@ -127,7 +142,19 @@ func GetMeetingByID(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Meeting not found in Zoom API"})
 		return
 	}
+	// Parse the start_time string to time.Time
+	zoomStartTime, err := time.Parse(time.RFC3339, zoomMeeting["start_time"].(string)) // Assuming start_time is in RFC3339 format
+	if err != nil {
+		// Handle error if time parsing fails
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid time format"})
+		return
+	}
 
+	// Add 7 hours to the parsed time
+	adjustedStartTime := zoomStartTime.Add(7 * time.Hour)
+
+	// Format the adjusted time back to string
+	adjustedStartTimeStr := adjustedStartTime.Format(time.RFC3339)
 	// Check if meeting exists in database
 	var dbMeeting models.Meeting
 	if err := database.DB.Where("zoom_id = ?", id).First(&dbMeeting).Error; err != nil {
@@ -135,7 +162,7 @@ func GetMeetingByID(c *gin.Context) {
 		newMeeting := models.Meeting{
 			ZoomID:    id,
 			Topic:     zoomMeeting["topic"].(string),
-			StartTime: zoomMeeting["start_time"].(string),
+			StartTime: adjustedStartTimeStr,
 			JoinURL:   zoomMeeting["join_url"].(string),
 			UserID:    currentUser.ID,
 		}
@@ -150,8 +177,8 @@ func GetMeetingByID(c *gin.Context) {
 		dbMeeting.Topic = zoomMeeting["topic"].(string)
 		updated = true
 	}
-	if dbMeeting.StartTime != zoomMeeting["start_time"].(string) {
-		dbMeeting.StartTime = zoomMeeting["start_time"].(string)
+	if dbMeeting.StartTime != adjustedStartTimeStr {
+		dbMeeting.StartTime = adjustedStartTimeStr
 		updated = true
 	}
 	if dbMeeting.JoinURL != zoomMeeting["join_url"].(string) {
