@@ -1,4 +1,4 @@
-# Project Name
+# Zoom Meeting App Event with golang gin and next js
 
 ## Deskripsi
 Dokumentasi untuk menjalankan project ini dengan Docker.
