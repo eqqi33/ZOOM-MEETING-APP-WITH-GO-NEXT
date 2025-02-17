@@ -7,8 +7,9 @@ import (
 )
 
 func CORSMiddleware() gin.HandlerFunc {
+	urlFrontend := os.Getenv("URL_FRONTEND")
 	return cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // Replace with your frontend URL
+		AllowOrigins:     []string{urlFrontend}, // Replace with your frontend URL
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
